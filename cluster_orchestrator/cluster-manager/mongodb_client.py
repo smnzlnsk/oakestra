@@ -9,20 +9,33 @@ MONGO_PORT = os.environ.get('CLUSTER_MONGO_PORT')
 
 MONGO_ADDR_NODES = 'mongodb://' + str(MONGO_URL) + ':' + str(MONGO_PORT) + '/nodes'
 MONGO_ADDR_JOBS = 'mongodb://' + str(MONGO_URL) + ':' + str(MONGO_PORT) + '/jobs'
+MONGO_ADDR_GATEWAY = 'mongodb://' + str(MONGO_URL) + ':' + str(MONGO_PORT) + '/gateway'
+
 
 mongo_nodes = None
 mongo_jobs = None
+
+mongo_gateway = None
+mongo_gateway_nodes = None
+mongo_gateway_services = None
+mongo_gateway_netmanagers = None
+
 app = None
 
 
 def mongo_init(flask_app):
     global app
-    global mongo_nodes, mongo_jobs
+    global mongo_nodes, mongo_jobs, mongo_gateway_nodes, mongo_gateway, mongo_gateway_services, mongo_gateway_netmanagers
 
     app = flask_app
 
     mongo_nodes = PyMongo(app, uri=MONGO_ADDR_NODES)
     mongo_jobs = PyMongo(app, uri=MONGO_ADDR_JOBS)
+
+    mongo_gateway = PyMongo(app, uri=MONGO_ADDR_GATEWAY)
+    mongo_gateway_nodes = mongo_gateway.db['nodes']
+    mongo_gateway_services = mongo_gateway.db['services']
+    mongo_gateway_netmanagers = mongo_gateway.db['netmanagers']
 
     app.logger.info("MONGODB - init mongo")
 

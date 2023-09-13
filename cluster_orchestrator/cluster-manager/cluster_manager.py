@@ -20,6 +20,7 @@ from analyzing_workers import looking_for_dead_workers
 from my_prometheus_client import prometheus_init_gauge_metrics, prometheus_set_metrics
 from network_plugin_requests import *
 import service_operations
+import gateway_operations
 
 MY_PORT = os.environ.get('MY_PORT')
 
@@ -75,6 +76,38 @@ def deploy_task(system_job_id, instance_number):
         return "", 500
 
     return 200
+
+
+@app.route('/api/gateway/deploy', methods=['POST'])
+def deploy_gateway():
+    app.logger.info('Incoming Request /api/gateway/deploy')
+    json_data = request.json  
+    return gateway_operations.deploy_gateway(json_data)
+
+
+@app.route('/api/gateway/<gateway_id>', methods=['POST, PUT', 'DELETE'])
+def handle_gateway(gateway_id):
+    app.logger.info('Incoming {} Request /api/gateway/{}'.format(request.method, gateway_id))
+    json_data = request.json
+    if request.method == 'POST':
+        return gateway_operations.handle_gateway_post(gateway_id, json_data)
+    if request.method == 'PUT':
+        return gateway_operations.handle_gateway_put(gateway_id, json_data)
+    if request.method == 'DELETE':
+        return gateway_operations.handle_gateway_delete(gateway_id)
+
+
+@app.route('/api/netmanager/register', methods=['POST'])
+def register_netmanager():
+    app.logger.info('Incoming Request /api/netmanager/register')
+    json_data = request.json
+    return gateway_operations.register_netmanager(json_data)
+
+
+@app.route('/api/netmanager/<netmanager_id>', methods=['DELETE'])
+def delete_netmanager(netmanager_id):
+    app.logger.info('Incoming {} Request /api/netmanager/{}'.format(request.method, netmanager_id))
+    return gateway_operations.delete_netmanager(netmanager_id)
 
 
 @app.route('/api/result/<system_job_id>/<instance_number>', methods=['POST'])
