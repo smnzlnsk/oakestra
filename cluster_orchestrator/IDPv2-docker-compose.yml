@@ -82,13 +82,13 @@ services:
     environment:
       - MY_PORT=10110
       - MQTT_BROKER_PORT=10003
-      - MQTT_BROKER_URL=mqtt
+      - MQTT_BROKER_URL=[2001:db8:b::6]
       - ROOT_SERVICE_MANAGER_URL=192.168.178.22
       - ROOT_SERVICE_MANAGER_URL_v6=[2001:a61:12ee:ce01:7c00:6b81:e932:2b59]
       - ROOT_SERVICE_MANAGER_PORT=10099
-      - SYSTEM_MANAGER_URL=cluster_manager
+      - SYSTEM_MANAGER_URL=[2001:db8:b::2]
       - SYSTEM_MANAGER_PORT=10000
-      - CLUSTER_MONGO_URL=cluster_mongo_net
+      - CLUSTER_MONGO_URL=[2001:db8:b::4]
       - CLUSTER_MONGO_PORT=10108
     depends_on:
       - mongo_clusternet
@@ -118,13 +118,13 @@ services:
       - SYSTEM_MANAGER_URL=192.168.178.22
       - SYSTEM_MANAGER_URL_v6=[2001:a61:12ee:ce01:7c00:6b81:e932:2b59]
       - SYSTEM_MANAGER_PORT=10000
-      - CLUSTER_SERVICE_MANAGER_ADDR=cluster_service_manager
+      - CLUSTER_SERVICE_MANAGER_ADDR=[2001:db8:b::3]
       - CLUSTER_SERVICE_MANAGER_PORT=10110
-      - CLUSTER_MONGO_URL=cluster_mongo
+      - CLUSTER_MONGO_URL=[2001:db8:b::5]
       - CLUSTER_MONGO_PORT=10107
-      - CLUSTER_SCHEDULER_URL=cluster_scheduler
+      - CLUSTER_SCHEDULER_URL=[2001:db8:b::7]
       - CLUSTER_SCHEDULER_PORT=10105
-      - MQTT_BROKER_URL=mqtt
+      - MQTT_BROKER_URL=[2001:db8:b::6]
       - MQTT_BROKER_PORT=10003
       - CLUSTER_NAME=Walhalla
       - CLUSTER_LOCATION=PARIS
@@ -153,9 +153,9 @@ services:
       - "10105:10105"
     environment:
       - MY_PORT=10105
-      - CLUSTER_MANAGER_URL=cluster_manager
+      - CLUSTER_MANAGER_URL=[2001:db8:b::2]
       - CLUSTER_MANAGER_PORT=10100
-      - CLUSTER_MONGO_URL=cluster_mongo
+      - CLUSTER_MONGO_URL=[2001:db8:b::5]
       - CLUSTER_MONGO_PORT=10107
       - REDIS_ADDR=redis://:clusterRedis@cluster_redis:6479
     depends_on:
