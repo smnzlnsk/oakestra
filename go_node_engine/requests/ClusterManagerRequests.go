@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"go_node_engine/logger"
 	"go_node_engine/model"
-	"io/ioutil"
+	"io"
 	"net/http"
 )
 
@@ -30,7 +30,7 @@ func ClusterHandshake(address string, port string) HandshakeAnswer {
 	}
 	defer resp.Body.Close()
 	handhsakeanswer := HandshakeAnswer{}
-	responseBytes, err := ioutil.ReadAll(resp.Body)
+	responseBytes, _ := io.ReadAll(resp.Body)
 	err = json.Unmarshal(responseBytes, &handhsakeanswer)
 	if err != nil {
 		logger.ErrorLogger().Fatalf("Handshake failed, %v", err)
