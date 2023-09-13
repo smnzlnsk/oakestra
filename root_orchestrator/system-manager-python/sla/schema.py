@@ -49,7 +49,9 @@ sla_schema = {
                                     "type": "object",
                                     "properties": {
                                         "rr_ip": {"type": "string"},
+                                        "rr_ip_v6": {"type": "string"},
                                         "closest_ip": {"type": "string"},
+                                        "closest_ip_v6": {"type": "string"},
                                         "instances": {
                                             "type": "array",
                                             "items": {
@@ -137,3 +139,26 @@ sla_schema = {
 
 sla_microservice_schema = sla_schema["properties"]["applications"]["items"]["properties"]["microservices"]["items"]
 sla_microservices_schema = sla_schema["properties"]["applications"]["items"]["properties"]["microservices"]
+
+gateway_schema = {
+    "type": "object",
+    "properties": {
+        "sla_version": {"type": "string"},
+        "customerID": {"type": "string"},
+        "microservices": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "microserviceID": {"type": "string"},
+                    "microservice_name": {"type": "string"},
+                    "exposed_port": {"type": "integer"},
+                },
+                "required": ["microserviceID", "microservice_name", "exposed_port"]
+            }
+        }
+    },
+    "required": ["sla_version", "customerID", "microservices"]
+}
+
+sla_gatewayservices_schema = gateway_schema["properties"]["microservices"]
