@@ -7,6 +7,7 @@ from blueprints.deployment_blueprints import deploybp
 from blueprints.applications_blueprints import applicationsblp,applicationblp
 from blueprints.users_blueprints import userbp, usersbp
 from blueprints.organization_blueprints import organizationblp
+from blueprints.gateway_blueprints import gatewayblp
 
 blueprints = [
     serviceblp,
@@ -21,5 +22,6 @@ blueprints = [
     schedulingbp,
     clusterinfo,
     clustersbp,
-    organizationblp
+    organizationblp,
+    gatewayblp
 ]
