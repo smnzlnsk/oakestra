@@ -3,6 +3,7 @@ import os
 import requests
 import time
 
+# net_plugin = root_service_manager
 NET_PLUGIN_ADDR = 'http://' + os.environ.get('NET_PLUGIN_URL', 'localhost') + ':' + str(
     os.environ.get('NET_PLUGIN_PORT', '10010'))
 
@@ -11,7 +12,7 @@ def net_inform_service_deploy(job, job_id):
     """
     Inform the network plugin about the deploy
     """
-    logging.debug('new job: communicating service deploy to netowkr plugin...')
+    logging.debug('new job: communicating service deploy to network plugin...')
     logging.debug(job)
     request_addr = NET_PLUGIN_ADDR + '/api/net/service/deploy'
     logging.debug(request_addr)
@@ -26,7 +27,7 @@ def net_inform_service_undeploy(job_id):
     """
     Inform the network plugin about the deploy
     """
-    logging.debug('delete job: communicating service undeploy to netowork plugin...')
+    logging.debug('delete job: communicating service undeploy to network plugin...')
     request_addr = NET_PLUGIN_ADDR + '/api/net/service/' + str(job_id)
     logging.debug(request_addr)
 
@@ -86,6 +87,87 @@ def net_register_cluster(cluster_id, cluster_address, cluster_port):
                               'cluster_port': cluster_port
                           })
         logging.debug(r)
+        r.raise_for_status()
+    except requests.exceptions.ConnectionError as errc:
+        logging.error('Calling network plugin ' + request_addr + ' Connection error.')
+    except requests.exceptions.Timeout as errt:
+        logging.error('Calling network plugin ' + request_addr + ' Timeout error.')
+    except requests.exceptions.RequestException as err:
+        logging.error('Calling network plugin ' + request_addr + ' Request Exception.')
+
+
+def net_inform_gateway_deploy(gateway_id, gateway):
+    """
+    Inform the network plugin about the firewall component to deploy on a node
+    """
+    logging.debug('new job: communicating firewall deployment to net component...')
+    request_addr = NET_PLUGIN_ADDR + '/api/firewall/deploy'
+    try:
+        r = requests.post(request_addr,
+                          json=component_desc)
+        logging.debug(r)
+        r.raise_for_status()
+    except requests.exceptions.ConnectionError as errc:
+        logging.error('Calling network plugin ' + request_addr + ' Connection error.')
+    except requests.exceptions.Timeout as errt:
+        logging.error('Calling network plugin ' + request_addr + ' Timeout error.')
+    except requests.exceptions.RequestException as err:
+        logging.error('Calling network plugin ' + request_addr + ' Request Exception.')
+    return
+
+
+def net_inform_gateway_undeploy(gateway_id):
+    """
+    Inform the network plugin about an undeployed firewall
+    """
+    logging.debug('new job: communicating firewall undeploy to network plugin...')
+    request_addr = NET_PLUGIN_ADDR + '/api/gateway/component/' + str(firewall_id)
+    logging.debug(request_addr)
+    try:
+        r = requests.delete(request_addr)
+        r.raise_for_status()
+    except requests.exceptions.ConnectionError as errc:
+        logging.error('Calling network plugin ' + request_addr + ' Connection error.')
+    except requests.exceptions.Timeout as errt:
+        logging.error('Calling network plugin ' + request_addr + ' Timeout error.')
+    except requests.exceptions.RequestException as err:
+        logging.error('Calling network plugin ' + request_addr + ' Request Exception.')
+    return
+
+
+def net_inform_firewall_deploy(component_desc):
+    """
+    Inform the network plugin about the firewall component to deploy on a node
+    """
+    logging.debug('new job: communicating firewall deployment to net component...')
+    request_addr = NET_PLUGIN_ADDR + '/api/firewall/deploy'
+    try:
+        r = requests.post(request_addr,
+                          json=component_desc)
+        logging.debug(r)
+        r.raise_for_status()
+    except requests.exceptions.ConnectionError as errc:
+        logging.error('Calling network plugin ' + request_addr + ' Connection error.')
+    except requests.exceptions.Timeout as errt:
+        logging.error('Calling network plugin ' + request_addr + ' Timeout error.')
+    except requests.exceptions.RequestException as err:
+        logging.error('Calling network plugin ' + request_addr + ' Request Exception.')
+
+
+def net_inform_firewall_update(node_id):
+    # TODO
+    return
+
+
+def net_inform_firewall_undeploy(firewall_id):
+    """
+    Inform the network plugin about an undeployed firewall
+    """
+    logging.debug('new job: communicating firewall undeploy to network plugin...')
+    request_addr = NET_PLUGIN_ADDR + '/api/gateway/component/' + str(firewall_id)
+    logging.debug(request_addr)
+    try:
+        r = requests.delete(request_addr)
         r.raise_for_status()
     except requests.exceptions.ConnectionError as errc:
         logging.error('Calling network plugin ' + request_addr + ' Connection error.')

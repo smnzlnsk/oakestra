@@ -4,7 +4,7 @@ import requests
 
 from ext_requests.apps_db import mongo_find_job_by_id, mongo_find_cluster_of_job
 from ext_requests.cluster_db import mongo_find_cluster_by_id, mongo_find_cluster_by_ip
-
+from ext_requests.gateway_db import mongo_find_gateway_by_id
 
 def cluster_request_to_deploy(cluster_id, job_id, instance_number):
     print('propagate to cluster...')
@@ -73,3 +73,34 @@ def cluster_request_to_move_within_cluster(cluster_obj, job_id, node_from, node_
         return 1
     except requests.exceptions.RequestException as e:
         print('Calling Cluster Orchestrator /api/move not successful.')
+
+
+def cluster_request_to_deploy_gateway(cluster_id, microservice):
+    print('propagate to cluster...')
+    cluster = mongo_find_cluster_by_id(cluster_id)
+    #gateway = mongo_find_gateway_by_id(gateway_id)
+    json_data = microservice
+    print(json_data)
+
+    # adjusted cluster_addr for ipv6
+    try:
+        cluster_addr = 'http://[' + cluster.get('ip') + ']:' + str(cluster.get('port')) + '/api/gateway/deploy'
+        #gateway['_id'] = str(gateway['_id'])
+        resp = requests.post(cluster_addr, json=json_data)
+        print(resp)
+    except requests.exceptions.RequestException as e:
+        print('Calling Cluster Orchestrator /api/gateway/deploy not successful.')
+
+
+def cluster_request_to_update_gateway(cluster_id, gateway_id, microservice):
+    print('propagate to cluster...')
+    cluster = mongo_find_cluster_by_id(cluster_id)
+    gateway = mongo_find_gateway_by_id(gateway_id)
+    # adjusted cluster_addr for ipv6
+    try:
+        cluster_addr = 'http://[' + cluster.get('ip') + ']:' + str(cluster.get('port')) + '/api/gateway/update/' + str(gateway_id)
+        gateway['_id'] = str(gateway['_id'])
+        resp = requests.post(cluster_addr, json=microservice)
+        print(resp)
+    except requests.exceptions.RequestException as e:
+        print('Calling Cluster Orchestrator /api/gateway/update not successful.')
