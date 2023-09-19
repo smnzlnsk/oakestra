@@ -2,7 +2,7 @@ import ipaddress
 from gateway_db import *
 from bson import ObjectId
 from mqtt_client import mqtt_publish_firewall_deploy, mqtt_publish_new_firewall_rule, mqtt_publish_gateway_deploy
-from network_plugin_requests import network_notify_netmanager_registration, network_notify_netmanager_deregistration
+from network_plugin_requests import network_notify_gateway_deploy
 
 def deploy_gateway(service):
     """
@@ -30,7 +30,7 @@ def deploy_gateway(service):
             update_firewall_rules_on_worker(instance['worker_id'], service)
         else:
             # get a gateway, able to expose the requested service
-            gateway = mongo_find_available_gateway(service['exposed_port'])
+            gateway = mongo_find_available_gateway_by_port(service['exposed_port'])
             if gateway is None:
                 # if no gateway available, deploy a new one
                 gateway = deploy_gateway_process_on_cluster()
@@ -60,9 +60,9 @@ def update_firewall_rules_on_worker(worker_id, service):
 def deploy_gateway_process_on_cluster():
     worker_info = mongo_find_available_idle_worker()
     gateway_info = prepare_gateway_node_entry(worker_info, 'gateway')
-    gateway_info = fetch_oakestra_ip_for_node(gateway_info)
     gateway_id = mongo_add_gateway_node(gateway_info)
-    # TODO configure database right and set function params to send (get oakestra ip depending on worker_info ip and ipv6)
+    network_notify_gateway_deploy(gateway_info)
+    # TODO
     mqtt_publish_gateway_deploy(gateway_info['worker_id'], gateway_id)
     return gateway_id
 
@@ -93,19 +93,10 @@ def prepare_gateway_node_service_entry(service):
 
 def register_netmanager(netmanager_data):
     net_id = mongo_register_netmanager_client(netmanager_data)
-    network_notify_netmanager_registration(netmanager_data)
     if net_id is not None:
         return {'id': net_id}, 200
     return "", 500
 
-
-def delete_netmanager(netmanager_id):
-    network_notify_netmanager_deregistration(netmanager_id)
-    return mongo_delete_netmanager_client(netmanager_id)
-
-
-def fetch_oakestra_ip_for_node(worker_info):
-    return
 
 
 def prepare_gateway_node_entry(worker_info, type):
@@ -116,11 +107,11 @@ def prepare_gateway_node_entry(worker_info, type):
         data['worker_ip'] = worker_info['publicip']
     
     if type == 'gateway':
-        data['worker_id'] = worker_info['_id']
+        data['gateway_id'] = worker_info['_id']
         if worker_info.get('ip') != "":
-            data['worker_ipv4'] = worker_info['ip']
+            data['gateway_ipv4'] = worker_info['ip']
         if worker_info.get('ipv6') != "":
-            data['worker_ipv6'] = worker_info['ipv6']
+            data['gateway_ipv6'] = worker_info['ipv6']
     data['type'] = type # type is either firewall or gateway
     data['used_ports'] = []
     data['services'] = []

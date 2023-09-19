@@ -96,15 +96,15 @@ def net_register_cluster(cluster_id, cluster_address, cluster_port):
         logging.error('Calling network plugin ' + request_addr + ' Request Exception.')
 
 
-def net_inform_gateway_deploy(gateway_id, gateway):
+def net_inform_gateway_deploy(gateway):
     """
-    Inform the network plugin about the firewall component to deploy on a node
+    Inform the network plugin about the gateway component to deploy on a node
     """
-    logging.debug('new job: communicating firewall deployment to net component...')
-    request_addr = NET_PLUGIN_ADDR + '/api/firewall/deploy'
+    logging.debug('new job: communicating gateway deployment to net component...')
+    request_addr = NET_PLUGIN_ADDR + '/api/gateway/deploy'
     try:
         r = requests.post(request_addr,
-                          json=component_desc)
+                          json=gateway)
         logging.debug(r)
         r.raise_for_status()
     except requests.exceptions.ConnectionError as errc:
@@ -118,10 +118,10 @@ def net_inform_gateway_deploy(gateway_id, gateway):
 
 def net_inform_gateway_undeploy(gateway_id):
     """
-    Inform the network plugin about an undeployed firewall
+    Inform the network plugin about an undeployed gateway
     """
-    logging.debug('new job: communicating firewall undeploy to network plugin...')
-    request_addr = NET_PLUGIN_ADDR + '/api/gateway/component/' + str(firewall_id)
+    logging.debug('new job: communicating gateway undeploy to network plugin...')
+    request_addr = NET_PLUGIN_ADDR + '/api/gateway/undeploy/' + str(gateway_id)
     logging.debug(request_addr)
     try:
         r = requests.delete(request_addr)

@@ -97,9 +97,6 @@ def cluster_request_to_move_within_cluster(cluster_obj, job_id, node_from, node_
 def cluster_request_to_deploy_gateway(cluster_id, microservice):
     print('propagate to cluster...')
     cluster = mongo_find_cluster_by_id(cluster_id)
-    #gateway = mongo_find_gateway_by_id(gateway_id)
-    json_data = microservice
-    print(json_data)
 
     # adjusted cluster_addr for ipv6
     ip = cluster.get('ip')
@@ -107,8 +104,7 @@ def cluster_request_to_deploy_gateway(cluster_id, microservice):
     url = '[{}]'.format(ip) if type(ip_address(ip)) is IPv6Address else ip
     try:
         cluster_addr = 'http://' + url + ':' + str(cluster.get('port')) + '/api/gateway/deploy'
-        #gateway['_id'] = str(gateway['_id'])
-        resp = requests.post(cluster_addr, json=json_data)
+        resp = requests.post(cluster_addr, json=microservice)
         print(resp)
     except requests.exceptions.RequestException as e:
         print('Calling Cluster Orchestrator /api/gateway/deploy not successful.')

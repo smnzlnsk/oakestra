@@ -23,18 +23,9 @@ def network_notify_undeployment(job_id, job):
     pass
 
 
-def network_notify_netmanager_registration(netmanager_info):
-    print('Sending netmanager registration information to the network component')
-    netmanager_info['_id'] = str(netmanager_info['_id'])
+def network_notify_gateway_deploy(gateway_info):
+    print('Sending netmanager registration information to the network component')    
     try:
-        requests.post(SERVICE_MANAGER_ADDR + '/api/net/netmanager/registration', json=netmanager_info)
+        requests.post(SERVICE_MANAGER_ADDR + '/api/net/gateway/deploy', json=gateway_info)
     except requests.exceptions.RequestException as e:
-        print('Calling Service Manager /api/net/netmanager/registration not successul')
-
-
-def network_notify_netmanager_deregistration(netmanager_id):
-    print('Sending netmanager registration information to the network component')
-    try:
-        requests.post(SERVICE_MANAGER_ADDR + '/api/net/netmanager/deregistration', json={'id': netmanager_id})
-    except requests.exceptions.RequestException as e:
-        print('Calling Service Manager /api/net/netmanager/deregistration not successul')
+        print('Calling Service Manager /api/net/gateway/deploy not successul')

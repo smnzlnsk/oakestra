@@ -67,7 +67,7 @@ def mongo_find_available_idle_worker():
     # TODO tidy entry return
     return db.mongo_gateway_netmanagers.find_one()
 
-def mongo_find_available_gateway(port):
+def mongo_find_available_gateway_by_port(port):
     return db.mongo_gateway_nodes.find_one({'used_ports': {'$nin': [port]}})
 
 def mongo_get_gateways_of_service(service_id):

@@ -28,7 +28,6 @@ def create_service_gateway(current_user, sla):
         # check for every instance deployed, if worker node is publicly accessable
         # if yes, deploy firewall
         # if no, deploy gateway inside cluster on available public worker
-        instances = service.get("instance_list")
         clusters = mongo_get_clusters_of_active_service_instances(microservice['microserviceID'])
         for cluster in clusters:
             # notify cluster to enable gateway for microservice if possible
