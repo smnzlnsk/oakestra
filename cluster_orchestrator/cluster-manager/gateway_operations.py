@@ -109,6 +109,7 @@ def prepare_gateway_node_entry(worker_info, type):
     @returns:
     {
         'gateway_id': string,
+        'host': string,
         'gateway_ipv4': string,
         'gateway_ipv6': string,
         'type': string,  <firewall,gateway>
@@ -128,6 +129,7 @@ def prepare_gateway_node_entry(worker_info, type):
             data['gateway_ipv4'] = worker_info['ip']
         if worker_info.get('ipv6') != "":
             data['gateway_ipv6'] = worker_info['ipv6']
+    data['host'] = worker_info['host']
     data['type'] = type # type is either firewall or gateway
     data['used_ports'] = []
     data['services'] = []
