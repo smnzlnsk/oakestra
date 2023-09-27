@@ -25,7 +25,7 @@ def create_service_gateway(current_user, sla):
             port = service['port']
 
         # remove protocol at the end, if present
-        microservice["internal_port"] = int(port.split('/')) # internal port
+        microservice["internal_port"] = int(port.split('/')[0]) # internal port
         duplicate = mongo_get_gateway_service_by_id(microservice["microserviceID"])
         if duplicate is not None:
             return {'message': "service {} already exposed".format(microservice["microserviceID"])}, 404
