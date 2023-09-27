@@ -1,7 +1,7 @@
 import ipaddress
 from gateway_db import *
 from bson import ObjectId
-from mqtt_client import mqtt_publish_firewall_deploy, mqtt_publish_new_firewall_rule, mqtt_publish_gateway_deploy
+from mqtt_client import mqtt_publish_firewall_deploy, mqtt_publish_new_firewall_rule
 from network_plugin_requests import network_notify_gateway_deploy
 
 def deploy_gateway(service):
@@ -19,6 +19,7 @@ def deploy_gateway(service):
     # TODO cleanup make distinct array for runtime optimization
     for instance in instances:
         # check if worker instance IP is part of oakestra network
+        """
         if _is_public_IP(instance['publicip']):
             # check if worker already has running firewall
             node = mongo_get_gateway_node(instance['worker_id'])
@@ -29,16 +30,18 @@ def deploy_gateway(service):
             # update its firewall rules
             update_firewall_rules_on_worker(instance['worker_id'], service)
         else:
+        """
             # get a gateway, able to expose the requested service
-            gateway = mongo_find_available_gateway_by_port(service['exposed_port'])
+        gateway = mongo_find_available_gateway_by_port(service['exposed_port'])
+        if gateway is None:
+            # if no gateway available, deploy a new one
+            gateway = deploy_gateway_process_on_cluster()
+            # if deployment impossible, return 500
             if gateway is None:
-                # if no gateway available, deploy a new one
-                gateway = deploy_gateway_process_on_cluster()
-                # if deployment impossible, return 500
-                if gateway is None:
-                    return {'message': 'service exposal impossible'}, 500
+                mongo_delete_gateway_service(service_id=service['microserviceID'])
+                return {'message': 'service exposal impossible'}, 500
             # update its firewall rules
-            update_gateway_service_exposal(gateway['_id'], service)
+        update_gateway_service_exposal(gateway['_id'], service)
     gateways = mongo_get_gateways_of_service(service['microserviceID'])
     return {'message': gateways}, 200
 
@@ -58,12 +61,13 @@ def update_firewall_rules_on_worker(worker_id, service):
 
 
 def deploy_gateway_process_on_cluster():
+    # find idle netmanager
     worker_info = mongo_find_available_idle_worker()
     gateway_info = prepare_gateway_node_entry(worker_info, 'gateway')
+    # remove netmanager entry from table of netmanagers and add to active gateways
     gateway_id = mongo_add_gateway_node(gateway_info)
+    # notify cluster service-manager
     network_notify_gateway_deploy(gateway_info)
-    # TODO
-    mqtt_publish_gateway_deploy(gateway_info['worker_id'], gateway_id)
     return gateway_id
 
 
@@ -100,14 +104,25 @@ def register_netmanager(netmanager_data):
 
 
 def prepare_gateway_node_entry(worker_info, type):
+    """
+    @returns:
+    {
+        'gateway_id': string,
+        'gateway_ipv4': string,
+        'gateway_ipv6': string,
+        'type': string,  <firewall,gateway>
+        'used_ports': [],
+        'services': []
+    }
+    """
     data = {}
     if type == 'firewall':
         # TODO adjust to more detailed worker info, from fetch whole node information
-        data['worker_id'] = worker_info['worker_id']
-        data['worker_ip'] = worker_info['publicip']
+        data['gateway_id'] = worker_info['worker_id']
+        data['gateway_ipv4'] = worker_info['publicip']
     
     if type == 'gateway':
-        data['gateway_id'] = worker_info['_id']
+        data['gateway_id'] = str(worker_info['_id'])
         if worker_info.get('ip') != "":
             data['gateway_ipv4'] = worker_info['ip']
         if worker_info.get('ipv6') != "":

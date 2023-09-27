@@ -15,7 +15,9 @@ def mongo_add_gateway_service_to_node(node_id, service):
 
 
 def mongo_add_gateway_node(gateway):
-    db.app.logger.info("MONGODB - insert node to gateway db...")
+    db.app.logger.info("MONGODB - remove netmanager node from gateway db...")
+    db.mongo_gateway_netmanagers.delete({'_id': ObjectId(gateway['gateway_id'])})
+    db.app.logger.info("MONGODB - insert gateway node to gateway db...")
     new_gateway = db.mongo_gateway_nodes.insert_one(gateway)
     inserted_id = new_gateway.inserted_id
     db.app.logger.info("MONGODB - service {} added to gateway db".format(str(inserted_id))) 
@@ -29,7 +31,8 @@ def mongo_get_gateway_node(node_id):
     return db.mongo_gateway_nodes.find_one({'worker_id': node_id})
 
 def mongo_delete_gateway_service(service_id):
-    return
+    db.mongo_gateway_service.delete({'microserviceID': service_id})
+
 
 def mongo_delete_gateway_node(gateway_id):
     return
