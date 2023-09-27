@@ -63,7 +63,7 @@ def mongo_register_netmanager_client(netmanager_data):
 
 def mongo_delete_netmanager_client(netmanager_id):
     db.app.logger.info("MONGODB - delete netmanager from gateway netmanager db...")
-    db.mongo_gateway_netmanagers.delete(ObjectId(netmanager_id))
+    db.mongo_gateway_netmanagers.delete_one(ObjectId(netmanager_id))
     db.app.logger.info("MONGODB - deleted netmanager client {} from gateway netmanagers db".format(netmanager_id)) 
 
 def mongo_find_available_idle_worker():
