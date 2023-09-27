@@ -1,7 +1,6 @@
-import logging 
-import ipaddress
-import threading
+import logging
 
+from re import search
 from ext_requests.gateway_db import *
 from ext_requests.cluster_requests import cluster_request_to_deploy_gateway, cluster_request_to_update_gateway
 from ext_requests.net_plugin_requests import net_inform_firewall_deploy
@@ -19,7 +18,14 @@ def create_service_gateway(current_user, sla):
         service = mongo_get_service_instances_by_id(microservice["microserviceID"])
         if service is None:
             return {'message': "service {} not found".format(microservice["microserviceID"])}, 404
-        microservice["internal_port"] = service["port"] # internal port
+        # fetch the internal port correctly
+        try: 
+            port = search(':(.+?)', service['port']).group(1)
+        except AttributeError:
+            port = service['port']
+
+        # remove protocol at the end, if present
+        microservice["internal_port"] = int(port.split('/')[0]) # internal port
         duplicate = mongo_get_gateway_service_by_id(microservice["microserviceID"])
         if duplicate is not None:
             return {'message': "service {} already exposed".format(microservice["microserviceID"])}, 404
