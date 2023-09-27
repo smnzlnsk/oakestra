@@ -67,8 +67,9 @@ def deploy_gateway_process_on_cluster():
     # remove netmanager entry from table of netmanagers and add to active gateways
     gateway_id = mongo_add_gateway_node(gateway_info)
     # notify cluster service-manager
+    gateway_info['_id'] = str(gateway_info['_id'])
     network_notify_gateway_deploy(gateway_info)
-    return gateway_id
+    return gateway_info
 
 
 def update_gateway_service_exposal(gateway_id, service):
