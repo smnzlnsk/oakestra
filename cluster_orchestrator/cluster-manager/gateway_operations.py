@@ -38,9 +38,11 @@ def deploy_gateway(service):
             # get a gateway, able to expose the requested service
         
         gateway = mongo_find_available_gateway_by_port(service['exposed_port'])
+        print('mongo_find_available_gateway_by_port: ', gateway)
         if gateway is None:
             # if no gateway available, deploy a new one
             gateway = deploy_gateway_process_on_cluster()
+            print('deploy gateway process: ', gateway)
             # if deployment impossible, return 500
             if gateway is None:
                 mongo_delete_gateway_service(service_id=service['microserviceID'])
@@ -68,9 +70,12 @@ def update_firewall_rules_on_worker(worker_id, service):
 def deploy_gateway_process_on_cluster():
     # find idle netmanager
     worker_info = mongo_find_available_idle_worker()
+    print('idle netmanager: ', worker_info)
     gateway_info = prepare_gateway_node_entry(worker_info, 'gateway')
+    print('gateway_info: ', gateway_info)
     # remove netmanager entry from table of netmanagers and add to active gateways
     gateway_id = mongo_add_gateway_node(gateway_info)
+    print('gateway_info after swapping it, before sending it to network component, also being returned: ', gateway_info)
     # notify cluster service-manager
     gateway_info['_id'] = str(gateway_info['_id'])
     network_notify_gateway_deploy(gateway_info)
