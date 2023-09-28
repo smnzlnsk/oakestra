@@ -48,8 +48,11 @@ def deploy_gateway(service):
                 mongo_delete_gateway_service(service_id=service['microserviceID'])
                 return {'message': 'service exposal impossible'}, 500
             # update its firewall rules
+        print('updating firewall')
         update_gateway_service_exposal(gateway['_id'], service)
+        print('firewall updated')
     gateways = mongo_get_gateways_of_service(service['microserviceID'])
+    print('got gateways deployed: ', gateways)
     return {'message': gateways}, 200
 
 
