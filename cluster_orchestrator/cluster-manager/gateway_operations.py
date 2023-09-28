@@ -83,8 +83,13 @@ def deploy_gateway_process_on_cluster():
 
 
 def update_gateway_service_exposal(gateway_id, service):
+    print('gateway_id in update service_exposal: ', gateway_id)
+    print('service to expose: ', service)
     service_info = prepare_gateway_node_service_entry(service)
+    print('service_info :', service_info)
     mongo_add_gateway_service_to_node(gateway_id, service_info)
+    print('after adding it to table: ', service_info)
+    print('gateway_id new: ', gateway_id)
     mqtt_publish_new_firewall_rule(gateway_id, service_info)
     return
 
