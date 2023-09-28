@@ -9,8 +9,8 @@ def mongo_add_gateway_service(service):
     return str(inserted_id)
 
 
-def mongo_add_gateway_service_to_node(node_id, service):
-    db.mongo_gateway_nodes.update_one({'worker_id': node_id},
+def mongo_add_gateway_service_to_node(gateway_id, service):
+    db.mongo_gateway_nodes.update_one({'gateway_id': gateway_id},
                                    {'$addToSet': {'services': service}})
 
 
