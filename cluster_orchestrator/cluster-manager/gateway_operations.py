@@ -17,6 +17,8 @@ def deploy_gateway(service):
     
     # add service to collection of exposed services
     gateway_service = mongo_add_gateway_service(service)
+
+    # get distinct set of nodes of running instances
     worker_information = mongo_get_service_instance_node_information(service['microserviceID'])
     instances = worker_information['instance_list']
     # TODO cleanup make distinct array for runtime optimization

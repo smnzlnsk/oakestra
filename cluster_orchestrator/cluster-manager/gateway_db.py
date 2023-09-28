@@ -50,8 +50,9 @@ def mongo_check_if_port_already_used(port_num):
     return db.mongo_gateway_services.find_one({'exposed_port': port_num}).limit(1).size()
 
 
+# TODO needs change for firewall enabled workers
 def mongo_get_service_instance_node_information(service_id):
-    return db.mongo_jobs.db.jobs.find_one({'microserviceID': service_id}, {'instance_list.worker_id': 1, 'instance_list.publicip': 1})
+    return db.mongo_jobs.db.jobs.distinct('instance_list.worker_id', {'microserviceID': service_id})
 
 
 def mongo_register_netmanager_client(netmanager_data):
