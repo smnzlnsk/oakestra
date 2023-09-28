@@ -49,7 +49,7 @@ def deploy_gateway(service):
                 return {'message': 'service exposal impossible'}, 500
             # update its firewall rules
         print('updating firewall')
-        update_gateway_service_exposal(gateway['_id'], service)
+        update_gateway_service_exposal(gateway['gateway_id'], service)
         print('firewall updated')
     gateways = mongo_get_gateways_of_service(service['microserviceID'])
     print('got gateways deployed: ', gateways)
