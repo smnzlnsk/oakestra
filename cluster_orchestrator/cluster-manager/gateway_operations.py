@@ -10,9 +10,12 @@ def deploy_gateway(service):
     @param service: service data to expose
     @return message and http code
     """
+
     port_already_in_use = mongo_get_service_by_exposed_port(service['exposed_port'])
     if port_already_in_use is not None:
         return {'message': 'port already in use'}, 500
+    
+    # add service to collection of exposed services
     gateway_service = mongo_add_gateway_service(service)
     worker_information = mongo_get_service_instance_node_information(service['microserviceID'])
     instances = worker_information['instance_list']
