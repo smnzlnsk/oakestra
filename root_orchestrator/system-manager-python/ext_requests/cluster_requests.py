@@ -95,7 +95,7 @@ def cluster_request_to_move_within_cluster(cluster_obj, job_id, node_from, node_
 
 
 def cluster_request_to_deploy_gateway(cluster_id, microservice):
-    print('propagate to cluster...')
+    print('propagate to cluster... deploy gateway for microservice')
     cluster = mongo_find_cluster_by_id(cluster_id)
 
     # adjusted cluster_addr for ipv6

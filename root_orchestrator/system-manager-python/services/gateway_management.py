@@ -13,30 +13,38 @@ def create_service_gateway(current_user, sla):
     services = data.get('microservices')
 
     for microservice in services:
+
+        # check if microserviceID is set
         if microservice.get("microserviceID") is None:
             return {'message': "microserviceID cannot be empty"}, 404
+
+        # check if service is deployed
         service = mongo_get_service_instances_by_id(microservice["microserviceID"])
         if service is None:
             return {'message': "service {} not found".format(microservice["microserviceID"])}, 404
+        
+        # check if service is already exposed
+        duplicate = mongo_get_gateway_service_by_id(microservice["microserviceID"])
+        if duplicate is not None:
+            return {'message': "service {} already exposed".format(microservice["microserviceID"])}, 404
+        
         # fetch the internal port correctly
+        # here we try to extract the non-docker-internal port on the target machine
         try: 
             port = search(':(.+)', service['port']).group(1)
         except AttributeError:
             port = service['port']
-
         # remove protocol at the end, if present
         microservice["internal_port"] = int(port.split('/')[0]) # internal port
-        duplicate = mongo_get_gateway_service_by_id(microservice["microserviceID"])
-        if duplicate is not None:
-            return {'message': "service {} already exposed".format(microservice["microserviceID"])}, 404
+
+        # add the service to be exposed to collection of exposed services
         mongo_add_service_to_gatewaydb(microservice)
         microservice['_id'] = str(microservice['_id'])
-        # check for every instance deployed, if worker node is publicly accessable
-        # if yes, deploy firewall
-        # if no, deploy gateway inside cluster on available public worker
+
+        # fetch the clusters of running target service instances
         clusters = mongo_get_clusters_of_active_service_instances(microservice['microserviceID'])
         for cluster in clusters:
-            # notify cluster to enable gateway for microservice if possible
+            # notify clusters to enable gateway for microservice if possible
             cluster_request_to_deploy_gateway(cluster, microservice)
 
     return {'message': 'service(s) successfully exposed'}, 200
