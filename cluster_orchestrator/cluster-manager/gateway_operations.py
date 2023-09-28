@@ -35,8 +35,7 @@ def deploy_gateway(service):
             update_firewall_rules_on_worker(instance['worker_id'], service)
         else:
         """
-            # get a gateway, able to expose the requested service
-        
+        # get a gateway, able to expose the requested service on the desired port
         gateway = mongo_find_available_gateway_by_port(service['exposed_port'])
         print('mongo_find_available_gateway_by_port: ', gateway)
         if gateway is None:
@@ -51,9 +50,11 @@ def deploy_gateway(service):
         print('updating firewall')
         update_gateway_service_exposal(gateway['gateway_id'], service)
         print('firewall updated')
-    gateways = mongo_get_gateways_of_service(service['microserviceID'])
-    print('got gateways deployed: ', gateways)
-    return {'message': gateways}, 200
+    
+    # TODO fix cursor problem
+    # gateways = mongo_get_gateways_of_service(service['microserviceID'])
+    # print('got gateways deployed: ', gateways)
+    return {'message': 'ok'}, 200
 
 
 def deploy_firewall_process_on_worker(worker_info):
