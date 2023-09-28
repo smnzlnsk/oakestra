@@ -19,10 +19,9 @@ def deploy_gateway(service):
     gateway_service = mongo_add_gateway_service(service)
 
     # get distinct set of nodes of running instances
-    worker_information = mongo_get_service_instance_node_information(service['microserviceID'])
-    instances = worker_information['instance_list']
-    # TODO cleanup make distinct array for runtime optimization
-    for instance in instances:
+    workers = mongo_get_service_instance_node_information(service['microserviceID'])
+    # instances = worker_information['instance_list']
+    for worker in workers:
         # check if worker instance IP is part of oakestra network
         """
         if _is_public_IP(instance['publicip']):
