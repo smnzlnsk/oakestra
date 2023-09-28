@@ -111,6 +111,8 @@ def mqtt_publish_firewall_deploy(worker_id, firewall_id):
 def mqtt_publish_new_firewall_rule(worker_id, service):
     topic = 'nodes/' + worker_id + '/net/firewall/update'
     service['_id'] = str(service['_id'])
+    print('json dumping: ', service)
+    print(json.dumps(service))
     mqtt.publish(topic, json.dumps(service))
 
 
