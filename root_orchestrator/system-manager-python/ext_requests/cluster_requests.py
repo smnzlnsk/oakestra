@@ -95,15 +95,19 @@ def cluster_request_to_move_within_cluster(cluster_obj, job_id, node_from, node_
 
 
 def cluster_request_to_deploy_gateway(cluster_id, microservice):
-    print('propagate to cluster... deploy gateway for microservice')
+    print('propagate to cluster...')
     cluster = mongo_find_cluster_by_id(cluster_id)
+    print('got cluster: ', cluster)
 
     # adjusted cluster_addr for ipv6
     ip = cluster.get('ip')
     # check if ip is IPv6 and add brackets
     url = '[{}]'.format(ip) if type(ip_address(ip)) is IPv6Address else ip
+    print('contacting url: ', url)
     try:
         cluster_addr = 'http://' + url + ':' + str(cluster.get('port')) + '/api/gateway/deploy'
+        print('sending to cluster addr: ', cluster_addr)
+        print('sending payload: ', microservice)
         resp = requests.post(cluster_addr, json=microservice)
         print(resp)
     except requests.exceptions.RequestException as e:
