@@ -35,7 +35,9 @@ def network_notify_gateway_update(gateway_id, service_info):
     print('Sending gateway update information to the network component')
     data =  {}
     data['gateway_id'] = gateway_id
+    del service_info['_id']
     data['service'] = service_info
+    print('updating gateway for service-manager:', service_info)
     try:
         requests.post(SERVICE_MANAGER_ADDR + '/api/net/gateway/update', json=data)
     except requests.exceptions.RequestException as e:
