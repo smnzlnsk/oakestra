@@ -3,6 +3,7 @@ from bson import ObjectId
 
 def mongo_add_gateway_service(service):
     db.app.logger.info("MONGODB - insert service to gateway db...")
+    service['_id'] = ObjectId(service['_id'])
     new_service = db.mongo_gateway_services.insert_one(service)
     inserted_id = new_service.inserted_id
     db.app.logger.info("MONGODB - service {} added to gateway db".format(str(inserted_id))) 

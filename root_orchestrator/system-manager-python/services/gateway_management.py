@@ -2,6 +2,7 @@ import logging
 
 from re import search
 from ext_requests.gateway_db import *
+from ext_requests.apps_db import mongo_find_job_by_id
 from ext_requests.cluster_requests import cluster_request_to_deploy_gateway, cluster_request_to_update_gateway
 from ext_requests.net_plugin_requests import net_inform_firewall_deploy
 from sla.versioned_sla_parser import parse_sla_json
@@ -36,6 +37,7 @@ def create_service_gateway(current_user, sla):
             port = service['port']
         # remove protocol at the end, if present
         microservice["internal_port"] = int(port.split('/')[0]) # internal port
+        microservice["job_name"] = service["job_name"]
 
         # add the service to be exposed to collection of exposed services
         mongo_add_service_to_gatewaydb(microservice)

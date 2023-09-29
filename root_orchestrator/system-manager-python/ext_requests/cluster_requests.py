@@ -106,8 +106,8 @@ def cluster_request_to_deploy_gateway(cluster_id, microservice):
     print('contacting url: ', url)
     try:
         cluster_addr = 'http://' + url + ':' + str(cluster.get('port')) + '/api/gateway/deploy'
-        print('sending to cluster addr: ', cluster_addr)
-        print('sending payload: ', microservice)
+        # embed cluster_id into struct 
+        microservice['cluster_id'] = cluster_id
         resp = requests.post(cluster_addr, json=microservice)
         print(resp.text)
         print(resp.json)

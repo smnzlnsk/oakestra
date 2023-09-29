@@ -87,6 +87,7 @@ def mongo_get_service_instances_by_id(service_id):
                                       {"instance_list.publicip": 1,
                                        "instance_list.cluster_id": 1,
                                        "port" : 1,
+                                       "job_name": 1,
                                        "instance_list.instance_number": 1
                                        })
 

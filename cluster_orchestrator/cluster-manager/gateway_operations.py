@@ -2,7 +2,7 @@ import ipaddress
 from gateway_db import *
 from bson import ObjectId
 from mqtt_client import mqtt_publish_firewall_deploy, mqtt_publish_new_firewall_rule
-from network_plugin_requests import network_notify_gateway_deploy
+from network_plugin_requests import network_notify_gateway_deploy, network_notify_gateway_update
 
 def deploy_gateway(service):
     """
@@ -15,6 +15,9 @@ def deploy_gateway(service):
     if port_already_in_use is not None:
         return {'message': 'port already in use'}, 500
     
+    cluster_id = service['cluster_id']
+    del service['cluster_id']
+
     # add service to collection of exposed services
     gateway_service = mongo_add_gateway_service(service)
 
@@ -40,7 +43,8 @@ def deploy_gateway(service):
         print('mongo_find_available_gateway_by_port: ', gateway)
         if gateway is None:
             # if no gateway available, deploy a new one
-            gateway = deploy_gateway_process_on_cluster()
+            # returns None if no gateway is available
+            gateway = deploy_gateway_process_on_cluster(cluster_id)
             print('deploy gateway process: ', gateway)
             # if deployment impossible, return 500
             if gateway is None:
@@ -71,11 +75,13 @@ def update_firewall_rules_on_worker(worker_id, service):
     return
 
 
-def deploy_gateway_process_on_cluster():
+def deploy_gateway_process_on_cluster(cluster_id):
     # find idle netmanager
     worker_info = mongo_find_available_idle_worker()
+    if worker_info is None:
+        return None
     print('idle netmanager: ', worker_info)
-    gateway_info = prepare_gateway_node_entry(worker_info, 'gateway')
+    gateway_info = prepare_gateway_node_entry(worker_info, cluster_id, 'gateway')
     print('gateway_info: ', gateway_info)
     # remove netmanager entry from table of netmanagers and add to active gateways
     gateway_id = mongo_add_gateway_node(gateway_info)
@@ -94,7 +100,10 @@ def update_gateway_service_exposal(gateway_id, service):
     mongo_add_gateway_service_to_node(gateway_id, service_info)
     print('after adding it to table: ', service_info)
     print('gateway_id new: ', gateway_id)
-    mqtt_publish_new_firewall_rule(gateway_id, service_info)
+
+    # send notification to service-manager -> he fetches service IPs and sends MQTT
+    network_notify_gateway_update(gateway_id, service_info)
+    # mqtt_publish_new_firewall_rule(gateway_id, service_info)
     return
 
 
@@ -123,13 +132,14 @@ def register_netmanager(netmanager_data):
 
 
 
-def prepare_gateway_node_entry(worker_info, type):
+def prepare_gateway_node_entry(worker_info, cluster_id, type):
     """
     @returns:
     {
         'gateway_id': string,
         'host': string,
         'host_port': int,
+        'cluster_id': string,
         'gateway_ipv4': string,
         'gateway_ipv6': string,
         'type': string,  <firewall,gateway>
@@ -152,6 +162,7 @@ def prepare_gateway_node_entry(worker_info, type):
     data['host'] = worker_info['host']
     # TODO rename to host_port
     data['port'] = worker_info['port']
+    data['cluster_id'] = cluster_id
     data['type'] = type # type is either firewall or gateway
     data['used_ports'] = []
     data['services'] = []
