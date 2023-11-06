@@ -62,6 +62,7 @@ def mongo_get_all_gateways():
 # services #
 # ........ #
 
+# add a service to be exposed to the database
 def mongo_add_service_to_gatewaydb(microservice):
     db.app.logger.info("MONGODB - insert service to gateway db...")
     new_service = db.mongo_gateway_services.insert_one(microservice)
@@ -70,10 +71,12 @@ def mongo_add_service_to_gatewaydb(microservice):
     return str(inserted_id)
 
 
+# get information on exposed service
 def mongo_get_gateway_service_by_id(microservice_id):
     return db.mongo_gateway_services.find_one({'microserviceID': microservice_id})
 
 
+# get all cluster_ids of clusters that have running instances of the service to be exposed
 def mongo_get_clusters_of_active_service_instances(service_id):
     return db.mongo_services.distinct('instance_list.cluster_id', 
                                       {'instance_list.status': 'RUNNING',
@@ -81,6 +84,7 @@ def mongo_get_clusters_of_active_service_instances(service_id):
                                         })
 
 
+# get all deployed instances of a service, with information on the workers they are deployed on
 def mongo_get_service_instances_by_id(service_id):
     # db.jobs.findOne({"microserviceID": "< >"}, {"instance_list.publicip": 1, "instance_list.cluster_id": 1, "port" : 1, "instance_list.instance_number": 1})
     return db.mongo_services.find_one({'microserviceID': service_id},

@@ -128,5 +128,6 @@ def cluster_request_to_update_gateway(cluster_id, gateway_id, microservice):
         gateway['_id'] = str(gateway['_id'])
         resp = requests.post(cluster_addr, json=microservice)
         print(resp)
+        return resp.status_code
     except requests.exceptions.RequestException as e:
         print('Calling Cluster Orchestrator /api/gateway/update not successful.')
