@@ -56,7 +56,7 @@ def create_service_gateway(current_user, sla):
     
     # fetch gateways of service and add to return table
     # FIXME: implement me 
-    gateway_table[microservice['microserviceID']] = gateways
+    # gateway_table[microservice['microserviceID']] = gateways
     return {'message': 'service(s) successfully exposed'}, 200
 
 
